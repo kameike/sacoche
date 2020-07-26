@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"os/exec"
 )
 
@@ -19,6 +20,8 @@ func (p *goPackageManager) Inspect(pd LoadedPackageData) (ExecutablePackageCmd, 
 
 	bep.data = pd
 	bep.bp = p
+
+	os.Setenv("GO111MODULE", "on")
 
 	bep.installCmd = append(
 		bep.installCmd,

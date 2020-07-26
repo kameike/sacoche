@@ -70,6 +70,7 @@ func main() {
 			fmt.Printf("[info] %s is not installed try to install\n", name)
 			e := v.InstallCommand().Execute()
 			if e != nil {
+				fmt.Printf("[fail] err: %s\n", e.Error())
 				fmt.Printf("[fail] faled to install %s\n", name)
 			} else {
 				fmt.Printf("[info] %s has been installed\n", name)
@@ -191,6 +192,7 @@ type GeneralCommand struct {
 func (g GeneralCommand) Execute() error {
 	for _, c := range g.cmds {
 		e := c.Run()
+		fmt.Printf("[info] run `%s`\n", c.String())
 		if e != nil {
 			return e
 		}
