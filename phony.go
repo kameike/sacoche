@@ -59,7 +59,6 @@ func (e *phonyExecutablePackage) IsAlreadyInstalled() bool {
 	ex := exec.Command(cmd[0], cmd[1:]...)
 	err := ex.Run()
 	if err != nil {
-		println(ex.String())
 		return false
 	}
 
