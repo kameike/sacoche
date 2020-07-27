@@ -148,8 +148,9 @@ type GroupName string
 type LoadedPackageData struct {
 	Name PackageName
 
-	BrewName string
-	BrewTap  string
+	BrewName     string
+	BrewTap      string
+	CheckCommand string
 
 	Group          []GroupName
 	PackageManager []PackageManagerName `toml:"manager"`
@@ -191,8 +192,8 @@ type GeneralCommand struct {
 
 func (g GeneralCommand) Execute() error {
 	for _, c := range g.cmds {
-		e := c.Run()
 		fmt.Printf("[info] run `%s`\n", c.String())
+		e := c.Run()
 		if e != nil {
 			return e
 		}
