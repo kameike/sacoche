@@ -39,13 +39,15 @@ func (e *phonyExecutablePackage) LoadedPackageData() LoadedPackageData {
 
 }
 func (e *phonyExecutablePackage) IsAlreadyInstalled() bool {
-	cmd := e.LoadedPackageData().CheckCommand
-	if cmd == "" {
+	cmd := strings.Split(e.LoadedPackageData().CheckCommand, " ")
+	if len(cmd) == 1 {
 		return false
 	}
 
-	err := exec.Command(cmd)
+	ex := exec.Command(cmd[0], cmd[:1]...)
+	err := ex.Run()
 	if err != nil {
+		println(err.Error())
 		return false
 	}
 
