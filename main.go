@@ -33,7 +33,7 @@ func main() {
 		panic(e.Error())
 	}
 
-	arr := []ExecutablePackageCmd{}
+	cmds := []ExecutablePackageCmd{}
 
 	for k, v := range list {
 		v.Name = PackageName(k)
@@ -42,29 +42,52 @@ func main() {
 
 			if mgr == "brew" {
 				res, _ := bpm.Inspect(v)
-				arr = append(arr, res)
+				cmds = append(cmds, res)
 			}
 
 			if mgr == "phony" {
 				res, _ := ppm.Inspect(v)
-				arr = append(arr, res)
+				cmds = append(cmds, res)
 			}
 
 			if mgr == "brewcask" {
 				res, _ := bcpm.Inspect(v)
-				arr = append(arr, res)
+				cmds = append(cmds, res)
 			}
 
 			if mgr == "go" {
 				res, _ := gopm.Inspect(v)
-				arr = append(arr, res)
+				cmds = append(cmds, res)
 			}
 		}
 	}
 
-	arr = resolveDependency(arr)
+	cmds = resolveDependency(cmds)
 
-	for _, v := range arr {
+	subcmd := flag.Arg(1)
+	if subcmd == "" || subcmd == "install" {
+		execInstallCmds(cmds)
+	} else if subcmd == "update" {
+		execUpdateCmds(cmds)
+	}
+}
+
+func execUpdateCmds(cmds []ExecutablePackageCmd) {
+	for _, v := range cmds {
+		name := v.LoadedPackageData().Name
+		fmt.Printf("[info] updating %s\n", name)
+		e := v.UpdateCommand().Execute()
+		if e != nil {
+			fmt.Printf("[fail] err: %s\n", e.Error())
+			fmt.Printf("[fail] faled to update %s\n", name)
+		} else {
+			fmt.Printf("[ ok ] %s has been updated\n", name)
+		}
+	}
+}
+
+func execInstallCmds(cmds []ExecutablePackageCmd) {
+	for _, v := range cmds {
 		name := v.LoadedPackageData().Name
 		if !v.IsAlreadyInstalled() {
 			fmt.Printf("[info] %s is not installed try to install\n", name)
@@ -73,7 +96,7 @@ func main() {
 				fmt.Printf("[fail] err: %s\n", e.Error())
 				fmt.Printf("[fail] faled to install %s\n", name)
 			} else {
-				fmt.Printf("[info] %s has been installed\n", name)
+				fmt.Printf("[ ok ] %s has been installed\n", name)
 			}
 		} else {
 			fmt.Printf("[ ok ] %s is installed\n", name)
