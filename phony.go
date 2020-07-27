@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -22,6 +23,13 @@ func (p *phonyPackageManager) Inspect(pd LoadedPackageData) (ExecutablePackageCm
 
 	for _, t := range pd.Tasks {
 		ss := strings.Split(t, " ")
+
+		if len(ss) > 1 {
+			for i := 1; i < len(ss); i++ {
+				ss[i] = os.ExpandEnv(ss[i])
+			}
+		}
+
 		cmds := exec.Command(ss[0], ss[1:]...)
 		pep.command = append(pep.command, cmds)
 	}
@@ -44,10 +52,13 @@ func (e *phonyExecutablePackage) IsAlreadyInstalled() bool {
 		return false
 	}
 
+	for i := 1; i < len(cmd); i++ {
+		cmd[i] = os.ExpandEnv(cmd[i])
+	}
+
 	ex := exec.Command(cmd[0], cmd[:1]...)
 	err := ex.Run()
 	if err != nil {
-		println(err.Error())
 		return false
 	}
 
